@@ -1,7 +1,4 @@
-# To better understand this file read this:
-# https://docs.ionos.space/docs/github-actions-customization/
-
-name: "Deploy Now: Execute Build"
+name: "Deploy Now: Build"
 
 on:
   workflow_call:
@@ -13,43 +10,33 @@ on:
         required: true
         type: string
 
-env:
-  DEPLOYMENT_FOLDER: out
-
 jobs:
-# Please do not rename this job
-  build-project:
-    name: build Togthr-template-Next
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: v22.x
+          node-version: '22'   # >=18 vale; 22 OK
+          cache: 'npm'
 
-      - name: Build Node assets
+      - name: Install dependencies
+        run: npm ci
+
+      # Build + export estático (desactiva i18n porque NEXT_EXPORT=true)
+      - name: Build & Export static
+        run: npm run export:static
         env:
-          CI: true
-          SITE_URL: ${{ inputs.site-url }}
-        run: |
-          npm install
-          npm run build:static
-          npm run export:static
+          NEXT_EXPORT: "true"
+          # Si tu app necesita la URL pública en build:
+          # NEXT_PUBLIC_SITE_URL: ${{ inputs.site-url }}
 
-# Please do not touch the following action
-      - name: Store deployment content
-        uses: ionos-deploy-now/artifact-action@v1
+      # Publica /out como artefacto para Deploy Now
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          api-key: ${{ secrets.IONOS_API_KEY }}
-          service-host: api-us.ionos.space
-          project-id: 2cfb0415-1f6f-49d2-a371-509e0bce5549
-          branch-id: ${{ inputs.branch-id }}
-          version: ${{ github.sha }}
-          folder: ${{ env.DEPLOYMENT_FOLDER }}
-          config-file: .deploy-now/Togthr-template-Next/config.yaml
-          action: upload
+          name: deploynow-artifact
+          path: out
