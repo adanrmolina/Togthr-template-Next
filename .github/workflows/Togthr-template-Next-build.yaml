@@ -17,7 +17,7 @@ env:
   DEPLOYMENT_FOLDER: out
 
 jobs:
-  # Please do not rename this job
+# Please do not rename this job
   build-project:
     name: build Togthr-template-Next
     runs-on: ubuntu-latest
@@ -25,33 +25,29 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: 'recursive'
 
-      - name: Setup Node (18.x)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
-          cache: 'npm'
+          node-version: v22.x
 
-      - name: Install deps
-        run: npm ci
-
-      # Importante: construir y exportar en modo estático (i18n desactivado)
-      - name: Build & Export static
+      - name: Build Node assets
         env:
           CI: true
           SITE_URL: ${{ inputs.site-url }}
-          NEXT_TELEMETRY_DISABLED: '1'
         run: |
+          npm install
+          npm run build:static
           npm run export:static
 
-      # Please do not touch the following action
+# Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
         with:
           api-key: ${{ secrets.IONOS_API_KEY }}
           service-host: api-us.ionos.space
-          project-id: c68a65b2-a1f6-43bf-bd51-c78bcfd16863
+          project-id: 2cfb0415-1f6f-49d2-a371-509e0bce5549
           branch-id: ${{ inputs.branch-id }}
           version: ${{ github.sha }}
           folder: ${{ env.DEPLOYMENT_FOLDER }}
