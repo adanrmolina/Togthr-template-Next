@@ -27,19 +27,21 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Setup Node (Next 12 funciona bien en 18)
+      - name: Setup Node (Next 12)
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          # SIN cache: 'npm' para no requerir lockfile en este paso
 
-      # --- Instalación de dependencias SIN lockfile ---
+      # Usa el lockfile que subiste (si no existe, usa npm install)
       - name: Install dependencies
-        env:
-          NODE_ENV: production
-        run: npm install --production
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --production
+          fi
 
-      # --- Build y export estático ---
       - name: Build & Export static site
         env:
           CI: true
@@ -49,7 +51,7 @@ jobs:
           npm run build
           npm run export
 
-      # --- Subir artefacto para Deploy Now ---
+      # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
         with:
