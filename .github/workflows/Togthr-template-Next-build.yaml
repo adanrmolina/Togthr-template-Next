@@ -1,3 +1,6 @@
+# To better understand this file read this:
+# https://docs.ionos.space/docs/github-actions-customization/
+
 name: "Deploy Now: Execute Build"
 
 on:
@@ -14,6 +17,7 @@ env:
   DEPLOYMENT_FOLDER: out
 
 jobs:
+  # Please do not rename this job
   build-project:
     name: build Togthr-template-Next
     runs-on: ubuntu-latest
@@ -23,15 +27,34 @@ jobs:
         with:
           submodules: 'recursive'
 
+      # Node 18 para Next 12. Sin cache para no chocar con el lockfile.
       - name: Setup Node (Next 12)
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
 
-      - name: Install deps (from lockfile)
-        run: npm ci
+      # Diagnóstico: confirma que package-lock.json está en la raíz
+      - name: Debug root files
+        run: |
+          pwd
+          ls -la
+          echo "---- package.json (head) ----"
+          head -n 20 package.json || true
+          echo "---- package-lock.json (head) ----"
+          head -n 20 package-lock.json || true
 
+      # Instala con npm ci si se puede; si falla por versión, cae a npm install
+      - name: Install dependencies
+        env:
+          NODE_ENV: production
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci || npm install --production
+          else
+            npm install --production
+          fi
+
+      # Build + export estático (Next 12)
       - name: Build & Export static site
         env:
           CI: true
@@ -41,6 +64,7 @@ jobs:
           npm run build
           npm run export
 
+      # Sube la carpeta 'out' al Deploy Now
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
         with:
