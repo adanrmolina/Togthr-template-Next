@@ -1838,13 +1838,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
 export default Home
 
-export async function getStaticProps(context) {
-  const messages = (await import('/locales/' + context.locale + '.json'))
-    .default
+export async function getStaticProps() {
+  const locale = 'es'; // <-- fija el idioma por defecto
+  const messages = (await import('../locales/' + locale + '.json')).default;
+
   return {
     props: {
-      messages,
-      ...context,
-    },
+      messages
+    }
   }
 }
