@@ -22,22 +22,24 @@ jobs:
     name: build Togthr-template-Next
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout source
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
-      - name: Setup Node (use 18 for Next 12)
+      - name: Setup Node (Next 12 funciona bien en 18)
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install deps from lockfile
+      # --- Instalación de dependencias SIN lockfile ---
+      - name: Install dependencies
         env:
           NODE_ENV: production
-        run: npm ci
+        run: npm install --production
 
+      # --- Build y export estático ---
       - name: Build & Export static site
         env:
           CI: true
@@ -47,7 +49,7 @@ jobs:
           npm run build
           npm run export
 
-      # Please do not touch the following action
+      # --- Subir artefacto para Deploy Now ---
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
         with:
