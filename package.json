@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
+    "build:static": "NEXT_EXPORT=true next build",
     "start": "next start",
-    "export": "NEXT_EXPORT=true next export"
+    "export": "NEXT_EXPORT=true next export",
+    "export:static": "npm run build:static && npm run export"
   },
   "author": "TeleportHQ",
   "license": "MIT",
