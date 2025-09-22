@@ -10,8 +10,8 @@ const Home = (props) => {
     <>
       <div className="home-container1">
         <Head>
-          <title>Togthr template</title>
-          <meta property="og:title" content="Togthr template" />
+          <title>Commercial Group</title>
+          <meta property="og:title" content="Commercial Group" />
         </Head>
         <section className="home-hero">
           <header className="home-header10">
