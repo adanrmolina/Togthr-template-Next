@@ -1,12 +1,12 @@
 // next.config.js
-const isExport = process.env.NEXT_EXPORT === 'true';
+const isStatic = process.env.NEXT_EXPORT === 'true'; // usaremos esto en build y export
 
 module.exports = {
-  // Necesario para export estático cuando usas next/image en Next 12
+  // Para que next/image funcione en export estático (Next 12)
   images: { unoptimized: true },
 
-  // Desactiva i18n SOLO durante el export
-  ...(isExport ? {} : {
+  // Si NO estamos haciendo build/export estático, entonces habilita i18n
+  ...(isStatic ? {} : {
     i18n: {
       locales: ['en', 'es'],
       defaultLocale: 'es',
